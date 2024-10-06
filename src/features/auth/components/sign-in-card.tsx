@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 
 import { SignInFlow } from "@/src/features/auth/types";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
@@ -20,6 +21,8 @@ interface SinInCardProps {
 }
 
 const SignInCard = ({ setState }: SinInCardProps) => {
+  const { signIn } = useAuthActions();
+
   return (
     <Card className={"h-full w-full p-8"}>
       <CardHeader className={"px-0 pt-0"}>
@@ -58,9 +61,8 @@ const SignInCard = ({ setState }: SinInCardProps) => {
           <Button
             size={"lg"}
             disabled={false}
-            className={"flex w-full items-center justify-between"}
-            onChange={() => {}}
             variant={"outline"}
+            className={"flex w-full items-center justify-between"}
           >
             <FcGoogle className={"size-5"} />
             Continue with Google
@@ -69,9 +71,9 @@ const SignInCard = ({ setState }: SinInCardProps) => {
           <Button
             size={"lg"}
             disabled={false}
-            className={"flex w-full items-center justify-between"}
-            onChange={() => {}}
             variant={"outline"}
+            onClick={() => void signIn("github")}
+            className={"flex w-full items-center justify-between"}
           >
             <FaGithub className={"size-5"} />
             Continue with Github
