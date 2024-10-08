@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 import { SignInFlow } from "@/src/features/auth/types";
 import { useAuthActions } from "@convex-dev/auth/react";
@@ -21,7 +21,13 @@ interface SignUpCardProps {
 }
 
 const SignUpCard = ({ setState }: SignUpCardProps) => {
+  const [pending, setPending] = useState(false);
   const { signIn } = useAuthActions();
+
+  const onProviderSignIn = (value: "google" | "github") => {
+    setPending(true);
+    void signIn(value).then(() => setPending(true));
+  };
 
   return (
     <Card className={"h-full w-full border-0 p-8"}>
@@ -34,22 +40,19 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
       <CardContent className={"space-y-5 px-0 pb-0"}>
         <form className={"space-y-2.5"}>
           <Input
-            disabled={false}
-            onChange={() => {}}
+            disabled={pending}
             placeholder={"Email"}
             type={"email"}
             required
           />
           <Input
-            disabled={false}
-            onChange={() => {}}
+            disabled={pending}
             placeholder={"Password"}
             type={"password"}
             required
           />
           <Input
-            disabled={false}
-            onChange={() => {}}
+            disabled={pending}
             placeholder={"Confirm password"}
             type={"password"}
             required
@@ -57,7 +60,7 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
           <Button
             type={"submit"}
             size={"lg"}
-            disabled={false}
+            disabled={pending}
             className={"w-full"}
           >
             Continue
@@ -67,8 +70,9 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
         <div className={"flex flex-col gap-y-2.5"}>
           <Button
             size={"lg"}
-            disabled={false}
+            disabled={pending}
             variant={"outline"}
+            onClick={() => onProviderSignIn("google")}
             className={"flex w-full items-center justify-between"}
           >
             <FcGoogle className={"size-5"} />
@@ -77,9 +81,9 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
           </Button>
           <Button
             size={"lg"}
-            disabled={false}
+            disabled={pending}
             variant={"outline"}
-            onClick={() => void signIn("github")}
+            onClick={() => onProviderSignIn("github")}
             className={"flex w-full items-center justify-between"}
           >
             <FaGithub className={"size-5"} />

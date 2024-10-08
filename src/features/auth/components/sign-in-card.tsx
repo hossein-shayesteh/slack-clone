@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 import { SignInFlow } from "@/src/features/auth/types";
 import { useAuthActions } from "@convex-dev/auth/react";
@@ -21,7 +21,13 @@ interface SinInCardProps {
 }
 
 const SignInCard = ({ setState }: SinInCardProps) => {
+  const [pending, setPending] = useState(false);
   const { signIn } = useAuthActions();
+
+  const onProviderSignIn = (value: "google" | "github") => {
+    setPending(true);
+    void signIn(value).then(() => setPending(true));
+  };
 
   return (
     <Card className={"h-full w-full p-8"}>
@@ -34,23 +40,21 @@ const SignInCard = ({ setState }: SinInCardProps) => {
       <CardContent className={"space-y-5 px-0 pb-0"}>
         <form className={"space-y-2.5"}>
           <Input
-            disabled={false}
-            onChange={() => {}}
+            disabled={pending}
             placeholder={"Email"}
             type={"email"}
             required
           />
           <Input
-            disabled={false}
-            onChange={() => {}}
+            disabled={pending}
             placeholder={"Password"}
             type={"password"}
             required
           />
           <Button
-            type={"submit"}
+            disabled={pending}
             size={"lg"}
-            disabled={false}
+            type={"submit"}
             className={"w-full"}
           >
             Continue
@@ -60,8 +64,9 @@ const SignInCard = ({ setState }: SinInCardProps) => {
         <div className={"flex flex-col gap-y-2.5"}>
           <Button
             size={"lg"}
-            disabled={false}
+            disabled={pending}
             variant={"outline"}
+            onClick={() => onProviderSignIn("google")}
             className={"flex w-full items-center justify-between"}
           >
             <FcGoogle className={"size-5"} />
@@ -70,9 +75,9 @@ const SignInCard = ({ setState }: SinInCardProps) => {
           </Button>
           <Button
             size={"lg"}
-            disabled={false}
+            disabled={pending}
             variant={"outline"}
-            onClick={() => void signIn("github")}
+            onClick={() => onProviderSignIn("github")}
             className={"flex w-full items-center justify-between"}
           >
             <FaGithub className={"size-5"} />
