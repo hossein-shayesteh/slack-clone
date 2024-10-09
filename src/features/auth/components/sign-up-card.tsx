@@ -1,9 +1,13 @@
 import { Dispatch, SetStateAction, useState } from "react";
 
-import { SignInFlow } from "@/src/features/auth/types";
+import { useRouter } from "next/navigation";
+
 import { useAuthActions } from "@convex-dev/auth/react";
+import { TriangleAlert } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+
+import { SignInFlow } from "@/src/features/auth/types";
 
 import { Button } from "@/src/components/ui/button";
 import {
@@ -22,11 +26,41 @@ interface SignUpCardProps {
 
 const SignUpCard = ({ setState }: SignUpCardProps) => {
   const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+
   const { signIn } = useAuthActions();
 
   const onProviderSignIn = (value: "google" | "github") => {
     setPending(true);
     void signIn(value).then(() => setPending(true));
+  };
+
+  const onSubmit = async (formData: FormData) => {
+    const email = formData.get("email") as string;
+    const name = formData.get("name") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
+
+    if (!email || !password || !confirmPassword || !name) {
+      setError("All fields are required.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      setPending(true);
+      await signIn("password", { email, password, name, flow: "signUp" });
+    } catch {
+      setError("Something went wrong.");
+    } finally {
+      setPending(false);
+      router.push("/");
+    }
   };
 
   return (
@@ -37,17 +71,36 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
           Use your Email or another service to continue
         </CardDescription>
       </CardHeader>
+      {!!error && (
+        <div
+          className={
+            "mb-6 flex items-center gap-x-2 rounded-md bg-destructive/15 p-3 text-xs text-destructive"
+          }
+        >
+          <TriangleAlert className={"size-4"} />
+          <p>{error}</p>
+        </div>
+      )}
       <CardContent className={"space-y-5 px-0 pb-0"}>
-        <form className={"space-y-2.5"}>
+        <form className={"space-y-2.5"} action={onSubmit}>
+          <Input
+            disabled={pending}
+            placeholder={"Full name"}
+            name={"name"}
+            type={"text"}
+            required
+          />
           <Input
             disabled={pending}
             placeholder={"Email"}
+            name={"email"}
             type={"email"}
             required
           />
           <Input
             disabled={pending}
             placeholder={"Password"}
+            name={"password"}
             type={"password"}
             required
           />
@@ -55,6 +108,7 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
             disabled={pending}
             placeholder={"Confirm password"}
             type={"password"}
+            name={"confirmPassword"}
             required
           />
           <Button
