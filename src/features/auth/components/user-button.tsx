@@ -3,7 +3,7 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Loader2, LogOut } from "lucide-react";
 
-import { useCurrentUser } from "@/src/hooks/use-current-user";
+import { useCurrentUser } from "@/src/features/auth/api/use-current-user";
 
 import {
   Avatar,
