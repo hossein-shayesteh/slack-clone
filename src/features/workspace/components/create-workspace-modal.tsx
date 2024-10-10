@@ -1,3 +1,8 @@
+import { ElementRef, useRef } from "react";
+
+import { useRouter } from "next/navigation";
+
+import { useCreateWorkspaces } from "@/src/features/workspace/api/use-create-workspaces";
 import { useCreateWorkspaceModal } from "@/src/features/workspace/store/use-create-workspace-modal";
 
 import { Button } from "@/src/components/ui/button";
@@ -10,11 +15,29 @@ import {
 import { Input } from "@/src/components/ui/input";
 
 const CreateWorkspaceModal = () => {
+  const formRef = useRef<ElementRef<"form">>(null);
+  const router = useRouter();
+
   const [open, setOpen] = useCreateWorkspaceModal();
+  const { mutate } = useCreateWorkspaces();
 
   const handleModalClose = () => {
     setOpen(false);
-    // TODO: clear form
+    formRef?.current?.reset();
+  };
+
+  const handleSubmit = async (formData: FormData) => {
+    const name = formData.get("name") as string;
+
+    await mutate(
+      { name },
+      {
+        onSuccess: (data) => {
+          setOpen(false);
+          router.push(`/workspace/${data!._id}`);
+        },
+      },
+    );
   };
 
   return (
@@ -23,10 +46,11 @@ const CreateWorkspaceModal = () => {
         <DialogHeader>
           <DialogTitle>Add a workspace</DialogTitle>
         </DialogHeader>
-        <form className={"space-y-4"}>
+        <form className={"space-y-4"} action={handleSubmit} ref={formRef}>
           <Input
             required
             autoFocus
+            name={"name"}
             minLength={3}
             disabled={false}
             placeholder={"Workspace name r.g. 'work', 'Personal', 'Home'"}
