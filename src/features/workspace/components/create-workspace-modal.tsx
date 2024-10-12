@@ -2,6 +2,8 @@ import { ElementRef, useRef } from "react";
 
 import { useRouter } from "next/navigation";
 
+import { useToast } from "@/src/hooks/use-toast";
+
 import { useCreateWorkspaces } from "@/src/features/workspace/api/use-create-workspaces";
 import { useCreateWorkspaceModal } from "@/src/features/workspace/store/use-create-workspace-modal";
 
@@ -19,6 +21,8 @@ const CreateWorkspaceModal = () => {
   const router = useRouter();
 
   const [open, setOpen] = useCreateWorkspaceModal();
+
+  const { toast } = useToast();
   const { mutate } = useCreateWorkspaces();
 
   const handleModalClose = () => {
@@ -34,6 +38,7 @@ const CreateWorkspaceModal = () => {
       {
         onSuccess: (data) => {
           setOpen(false);
+          toast({ description: "Workspace created." });
           router.push(`/workspace/${data!._id}`);
         },
       },
