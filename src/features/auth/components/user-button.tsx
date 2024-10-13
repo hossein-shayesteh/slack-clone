@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
-import { Loader2, LogOut } from "lucide-react";
+import { Loader, LogOut } from "lucide-react";
 
 import { useCurrentUser } from "@/src/features/auth/api/use-current-user";
 
@@ -22,7 +22,11 @@ const UserButton = () => {
   const { data, isLoading } = useCurrentUser();
 
   if (isLoading)
-    return <Loader2 className={"size-4 animate-spin text-muted-foreground"} />;
+    return (
+      <div className={"flex size-10 items-center justify-center"}>
+        <Loader className={"size-5 animate-spin text-muted-foreground"} />
+      </div>
+    );
   if (!data) return null;
 
   const { image, name } = data;
