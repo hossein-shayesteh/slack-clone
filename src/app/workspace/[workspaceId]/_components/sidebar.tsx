@@ -1,10 +1,17 @@
-import SidebarButton from "@/src/app/workspace/[workspaceId]/_components/sidebar-button";
-import WorkspaceSwitcher from "@/src/app/workspace/[workspaceId]/_components/workspace-switcher";
-import { Home } from "lucide-react";
+"use client";
+
+import { usePathname } from "next/navigation";
+
+import { Bell, Home, MessagesSquare, MoreHorizontal } from "lucide-react";
 
 import UserButton from "@/src/features/auth/components/user-button";
 
+import SidebarButton from "@/src/app/workspace/[workspaceId]/_components/sidebar-button";
+import WorkspaceSwitcher from "@/src/app/workspace/[workspaceId]/_components/workspace-switcher";
+
 const Sidebar = () => {
+  const pathname = usePathname();
+
   return (
     <aside
       className={
@@ -12,13 +19,19 @@ const Sidebar = () => {
       }
     >
       <WorkspaceSwitcher />
-      <SidebarButton icon={Home} label={"Home"} isActive />
+      <SidebarButton
+        icon={Home}
+        label={"Home"}
+        isActive={pathname.includes("/workspace")}
+      />
+      <SidebarButton icon={MessagesSquare} label={"DMs"} />
+      <SidebarButton icon={Bell} label={"Activity"} />
+      <SidebarButton icon={MoreHorizontal} label={"More"} />
       <div
         className={"mt-auto flex flex-col items-center justify-center gap-y-1"}
       >
         <UserButton />
       </div>
-      <div>A</div>
     </aside>
   );
 };

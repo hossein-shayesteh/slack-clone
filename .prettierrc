@@ -11,6 +11,7 @@
     "^@/src/lib",
     "^@/src/features",
     "^@/src/components",
+    "^@/src/app",
     "^@/src/types"
   ],
   "importOrderSeparation": true,
