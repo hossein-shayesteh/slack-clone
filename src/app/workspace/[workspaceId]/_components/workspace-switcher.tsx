@@ -31,7 +31,7 @@ const WorkspaceSwitcher = () => {
     useGetWorkspace(workspaceId);
 
   const filteredWorkspaces = workspaces?.filter(
-    (workspace) => workspace._id !== workspaceId,
+    (workspace) => workspace?._id !== workspaceId,
   );
 
   return (
@@ -64,9 +64,9 @@ const WorkspaceSwitcher = () => {
         {filteredWorkspaces &&
           filteredWorkspaces.map((workspace) => (
             <DropdownMenuItem
-              key={workspace._id}
+              key={workspace?._id}
               className={"cursor-pointer truncate capitalize"}
-              onClick={() => router.push(`/workspace/${workspace._id}`)}
+              onClick={() => router.push(`/workspace/${workspace?._id}`)}
             >
               <div
                 className={

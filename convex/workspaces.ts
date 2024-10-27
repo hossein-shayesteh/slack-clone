@@ -16,7 +16,7 @@ export const get = query({
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
 
-    if (!userId) return [];
+    if (!userId) return null;
 
     // Get all Workspaces the user is associated with
     const members = await ctx.db
@@ -64,7 +64,7 @@ export const getById = query({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
 
-    if (!userId) return [];
+    if (!userId) return null;
 
     // Get all Workspaces the user is associated with
     const members = await ctx.db
@@ -74,8 +74,8 @@ export const getById = query({
       )
       .unique();
 
-    if (!members) return [];
+    if (!members) return null;
 
-    return await ctx.db.get(members.workspaceId);
+    return (await ctx.db.get(members.workspaceId)) || null;
   },
 });
