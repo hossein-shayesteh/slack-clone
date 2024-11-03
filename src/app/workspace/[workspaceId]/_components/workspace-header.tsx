@@ -1,6 +1,8 @@
 import { Doc } from "@/convex/_generated/dataModel";
 import { ChevronDown, ListFilter, SquarePen } from "lucide-react";
 
+import { useWorkspacePreferencesModal } from "@/src/features/workspace/store/use-workspace-preferences-modal";
+
 import Hint from "@/src/components/shared/hint";
 import { Button } from "@/src/components/ui/button";
 import {
@@ -17,6 +19,9 @@ interface WorkspaceHeaderProps {
 }
 
 const WorkspaceHeader = ({ workspace, isAdmin }: WorkspaceHeaderProps) => {
+  const [_openWorkspacePreferencesModal, setOpenWorkspacePreferencesModal] =
+    useWorkspacePreferencesModal();
+
   return (
     <div className={"flex h-[49px] items-center justify-between gap-0.5 px-4"}>
       <DropdownMenu>
@@ -57,7 +62,7 @@ const WorkspaceHeader = ({ workspace, isAdmin }: WorkspaceHeaderProps) => {
               </DropdownMenuItem>
               <DropdownMenuItem
                 className={"cursor-pointer py-2"}
-                onClick={() => {}}
+                onClick={() => setOpenWorkspacePreferencesModal(true)}
               >
                 Preferences
               </DropdownMenuItem>
