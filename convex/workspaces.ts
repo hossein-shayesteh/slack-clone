@@ -67,16 +67,16 @@ export const getById = query({
     if (!userId) return null;
 
     // Get all Workspaces the user is associated with
-    const members = await ctx.db
+    const member = await ctx.db
       .query("members")
       .withIndex("by_workspace_id_user_id", (q) =>
         q.eq("workspaceId", args.id).eq("userId", userId),
       )
       .unique();
 
-    if (!members) return null;
+    if (!member) return null;
 
-    return (await ctx.db.get(members.workspaceId)) || null;
+    return (await ctx.db.get(member.workspaceId)) || null;
   },
 });
 
@@ -92,17 +92,52 @@ export const update = mutation({
     if (!userId) throw new Error("Unauthorized");
 
     // Get all Workspaces the user is associated with
-    const members = await ctx.db
+    const member = await ctx.db
       .query("members")
       .withIndex("by_workspace_id_user_id", (q) =>
         q.eq("workspaceId", args.id).eq("userId", userId),
       )
       .unique();
 
-    if (!members || members.role !== "admin") throw new Error("Unauthorized");
+    if (!member || member.role !== "admin") throw new Error("Unauthorized");
 
     await ctx.db.patch(args.id, { name: args.name });
 
     return await ctx.db.get(args.id);
+  },
+});
+
+export const remove = mutation({
+  args: {
+    id: v.id("workspaces"),
+  },
+
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) throw new Error("Unauthorized");
+
+    // Get all Workspaces the user is associated with
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_workspace_id_user_id", (q) =>
+        q.eq("workspaceId", args.id).eq("userId", userId),
+      )
+      .unique();
+
+    if (!member || member.role !== "admin") throw new Error("Unauthorized");
+
+    const [members] = await Promise.all([
+      ctx.db
+        .query("members")
+        .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.id))
+        .collect(),
+    ]);
+
+    for (const member of members) {
+      await ctx.db.delete(member._id);
+    }
+
+    await ctx.db.delete(args.id);
   },
 });
