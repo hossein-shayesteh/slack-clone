@@ -23,7 +23,7 @@ const CreateWorkspaceModal = () => {
   const [open, setOpen] = useCreateWorkspaceModal();
 
   const { toast } = useToast();
-  const { mutate } = useCreateWorkspaces();
+  const { mutate, isPending } = useCreateWorkspaces();
 
   const handleModalClose = () => {
     setOpen(false);
@@ -57,11 +57,11 @@ const CreateWorkspaceModal = () => {
             autoFocus
             name={"name"}
             minLength={3}
-            disabled={false}
+            disabled={isPending}
             placeholder={"Workspace name r.g. 'work', 'Personal', 'Home'"}
           />
           <div className={"flex justify-end"}>
-            <Button disabled={false}>Create</Button>
+            <Button disabled={isPending}>Create</Button>
           </div>
         </form>
       </DialogContent>

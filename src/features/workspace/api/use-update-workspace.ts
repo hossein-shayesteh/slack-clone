@@ -16,14 +16,14 @@ interface Options {
   throwError?: boolean;
 }
 
-export const useRemoveWorkspaces = () => {
+export const useUpdateWorkspace = () => {
   const [data, setData] = useState<ResponseType>(null);
   const [error, setError] = useState<Error | null>(null);
   const [status, setStatus] = useState<
     "idle" | "pending" | "success" | "error"
   >("idle");
 
-  const mutation = useMutation(api.workspaces.remove);
+  const mutation = useMutation(api.workspaces.update);
 
   const mutate = useCallback(
     async (values: RequestType, options?: Options) => {

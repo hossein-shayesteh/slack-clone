@@ -7,7 +7,7 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 
 type ResponseType = Doc<"workspaces"> | null;
-type RequestType = { id: Id<"workspaces">; name: string };
+type RequestType = { id: Id<"workspaces"> };
 
 interface Options {
   onSuccess?: (data: ResponseType) => void;
@@ -16,14 +16,14 @@ interface Options {
   throwError?: boolean;
 }
 
-export const useUpdateWorkspaces = () => {
+export const useRemoveWorkspace = () => {
   const [data, setData] = useState<ResponseType>(null);
   const [error, setError] = useState<Error | null>(null);
   const [status, setStatus] = useState<
     "idle" | "pending" | "success" | "error"
   >("idle");
 
-  const mutation = useMutation(api.workspaces.update);
+  const mutation = useMutation(api.workspaces.remove);
 
   const mutate = useCallback(
     async (values: RequestType, options?: Options) => {
