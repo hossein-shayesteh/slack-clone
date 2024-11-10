@@ -138,6 +138,11 @@ export const remove = mutation({
       await ctx.db.delete(member._id);
     }
 
+    //Keep a copy of deleted workspace
+    const workspaces = await ctx.db.get(args.id);
+
     await ctx.db.delete(args.id);
+
+    return workspaces;
   },
 });
