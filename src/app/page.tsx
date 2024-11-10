@@ -10,7 +10,7 @@ import { useCreateWorkspaceModal } from "@/src/features/workspace/store/use-crea
 
 const Home = () => {
   const { data, isLoading } = useGetWorkspaces();
-  const [open, setOpen] = useCreateWorkspaceModal();
+  const [_open, setOpen] = useCreateWorkspaceModal();
   const router = useRouter();
 
   const workspaceId = useMemo(() => data?.[0]?._id, [data]);
