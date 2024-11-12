@@ -14,6 +14,7 @@ import { useGetMembers } from "@/src/features/members/api/use-get-members";
 import { useGetWorkspace } from "@/src/features/workspace/api/use-get-workspace";
 import { useWorkspaceId } from "@/src/features/workspace/hooks/use-workspace-id";
 
+import MemberItem from "@/src/app/workspace/[workspaceId]/_components/member-item";
 import WorkspaceHeader from "@/src/app/workspace/[workspaceId]/_components/workspace-header";
 import WorkspaceSection from "@/src/app/workspace/[workspaceId]/_components/workspace-section";
 import WorkspaceSidebarItem from "@/src/app/workspace/[workspaceId]/_components/workspace-sidebar-item";
@@ -81,6 +82,20 @@ const WorkspaceSidebar = () => {
             label={channel.name}
             icon={HashIcon}
             id={channel._id}
+          />
+        ))}
+      </WorkspaceSection>
+      <WorkspaceSection
+        label={"Direct Messages"}
+        hint={"New direct messages"}
+        onNew={() => {}}
+      >
+        {members?.map((member) => (
+          <MemberItem
+            key={member._id}
+            id={member._id}
+            label={member.user.name}
+            image={member.user.image}
           />
         ))}
       </WorkspaceSection>
