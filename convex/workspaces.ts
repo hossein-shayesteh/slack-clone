@@ -52,6 +52,7 @@ export const create = mutation({
     });
 
     await ctx.db.insert("members", { userId, workspaceId, role: "admin" });
+    await ctx.db.insert("channels", { name: "general", workspaceId });
 
     return await ctx.db.get(workspaceId);
   },
@@ -117,7 +118,6 @@ export const remove = mutation({
 
     if (!userId) throw new Error("Unauthorized");
 
-    // Get all Workspaces the user is associated with
     const member = await ctx.db
       .query("members")
       .withIndex("by_workspace_id_user_id", (q) =>
@@ -127,20 +127,28 @@ export const remove = mutation({
 
     if (!member || member.role !== "admin") throw new Error("Unauthorized");
 
-    const [members] = await Promise.all([
-      ctx.db
-        .query("members")
-        .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.id))
-        .collect(),
-    ]);
+    const members = await ctx.db
+      .query("members")
+      .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.id))
+      .collect();
+
+    const channels = await ctx.db
+      .query("channels")
+      .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.id))
+      .collect();
 
     for (const member of members) {
       await ctx.db.delete(member._id);
     }
 
+    for (const channel of channels) {
+      await ctx.db.delete(channel._id);
+    }
+
     //Keep a copy of deleted workspace
     const workspaces = await ctx.db.get(args.id);
 
+    //Delete workspace
     await ctx.db.delete(args.id);
 
     return workspaces;
