@@ -2,7 +2,9 @@ import { ChangeEvent, useState } from "react";
 
 import { useToast } from "@/src/hooks/use-toast";
 
+import { useCreateChannel } from "@/src/features/channels/api/use-create-channel";
 import { useCreateChannelModal } from "@/src/features/channels/store/use-create-channel-modal";
+import { useWorkspaceId } from "@/src/features/workspace/hooks/use-workspace-id";
 
 import { Button } from "@/src/components/ui/button";
 import {
@@ -15,11 +17,13 @@ import { Input } from "@/src/components/ui/input";
 
 const CreateChannelModal = () => {
   const [name, setName] = useState("");
-
   const [open, setOpen] = useCreateChannelModal();
 
-  // const { toast } = useToast();
-  // const { mutate, isPending } = useCreateWorkspaces();
+  const { toast } = useToast();
+
+  const workspaceId = useWorkspaceId();
+
+  const { mutate, isPending } = useCreateChannel();
 
   const handleModalClose = () => {
     setOpen(false);
@@ -32,16 +36,18 @@ const CreateChannelModal = () => {
   };
 
   const handleSubmit = async () => {
-    // await mutate(
-    //   { name },
-    //   {
-    //     onSuccess: (data) => {
-    //       setOpen(false);
-    //       toast({ description: "Channel created." });
-    //
-    //     },
-    //   },
-    // );
+    await mutate(
+      {
+        name,
+        workspaceId,
+      },
+      {
+        onSuccess: () => {
+          setOpen(false);
+          toast({ description: "Channel created." });
+        },
+      },
+    );
   };
 
   return (
@@ -57,12 +63,12 @@ const CreateChannelModal = () => {
             value={name}
             minLength={3}
             maxLength={80}
-            disabled={false}
+            disabled={isPending}
             onChange={handleChange}
             placeholder={"e.g. plan-budget"}
           />
           <div className={"flex justify-end"}>
-            <Button disabled={false}>Create</Button>
+            <Button disabled={isPending}>Create</Button>
           </div>
         </form>
       </DialogContent>
