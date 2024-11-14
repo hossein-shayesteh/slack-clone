@@ -4,11 +4,8 @@ import { useMutation } from "convex/react";
 
 import { useConvexMutation } from "@/src/hooks/use-convex-mutation";
 
+type RequestType = { name: string; workspaceId: Id<"workspaces"> };
 type ResponseType = Doc<"channels"> | null;
-type RequestType = {
-  name: string;
-  workspaceId: Id<"workspaces">;
-};
 
 export const useCreateChannel = () => {
   const mutation = useMutation(api.channels.create);
