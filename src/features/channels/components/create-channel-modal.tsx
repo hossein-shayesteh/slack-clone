@@ -1,4 +1,6 @@
-import { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useState } from "react";
+
+import { useRouter } from "next/navigation";
 
 import { useToast } from "@/src/hooks/use-toast";
 
@@ -19,6 +21,8 @@ const CreateChannelModal = () => {
   const [name, setName] = useState("");
   const [open, setOpen] = useCreateChannelModal();
 
+  const router = useRouter();
+
   const { toast } = useToast();
 
   const workspaceId = useWorkspaceId();
@@ -35,16 +39,19 @@ const CreateChannelModal = () => {
     setName(value);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     await mutate(
       {
         name,
         workspaceId,
       },
       {
-        onSuccess: () => {
-          setOpen(false);
+        onSuccess: (data) => {
+          handleModalClose();
           toast({ description: "Channel created." });
+          router.push(`/workspace/${workspaceId}/channel/${data?._id}`);
         },
       },
     );
@@ -56,7 +63,7 @@ const CreateChannelModal = () => {
         <DialogHeader>
           <DialogTitle>Add a channel</DialogTitle>
         </DialogHeader>
-        <form className={"space-y-4"} action={handleSubmit}>
+        <form className={"space-y-4"} onSubmit={handleSubmit}>
           <Input
             required
             autoFocus

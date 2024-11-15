@@ -1,6 +1,7 @@
 import { Doc } from "@/convex/_generated/dataModel";
 import { ChevronDown, ListFilter, SquarePen } from "lucide-react";
 
+import { useInviteModal } from "@/src/features/workspace/store/use-invite-modal";
 import { useWorkspacePreferencesModal } from "@/src/features/workspace/store/use-workspace-preferences-modal";
 
 import Hint from "@/src/components/shared/hint";
@@ -21,6 +22,7 @@ interface WorkspaceHeaderProps {
 const WorkspaceHeader = ({ workspace, isAdmin }: WorkspaceHeaderProps) => {
   const [_openWorkspacePreferencesModal, setOpenWorkspacePreferencesModal] =
     useWorkspacePreferencesModal();
+  const [_openInviteModal, setOpenInviteModal] = useInviteModal();
 
   return (
     <div className={"flex h-[49px] items-center justify-between gap-0.5 px-4"}>
@@ -56,7 +58,7 @@ const WorkspaceHeader = ({ workspace, isAdmin }: WorkspaceHeaderProps) => {
             <>
               <DropdownMenuItem
                 className={"cursor-pointer py-2"}
-                onClick={() => {}}
+                onClick={() => setOpenInviteModal(true)}
               >
                 Invite people to {workspace.name}
               </DropdownMenuItem>

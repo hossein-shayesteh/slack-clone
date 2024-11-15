@@ -4,7 +4,7 @@ import { v } from "convex/values";
 
 const generatedCode = () => {
   return Array.from(
-    { length: 32 },
+    { length: 8 },
     () =>
       "0123456789abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 36)],
   ).join("");
