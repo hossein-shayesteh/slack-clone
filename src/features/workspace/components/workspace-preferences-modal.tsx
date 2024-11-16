@@ -34,10 +34,10 @@ const WorkspacePreferencesModal = () => {
 
   const { toast } = useToast();
 
-  const [ConfirmDialog, confirm] = useConfirm(
-    "Are you sure",
-    "This action in irreversible.",
-  );
+  const [ConfirmDialog, confirm] = useConfirm({
+    title: "Are you sure?",
+    message: "This action in irreversible.",
+  });
 
   const workspaceId = useWorkspaceId();
 

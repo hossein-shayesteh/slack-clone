@@ -10,10 +10,15 @@ import {
   DialogTitle,
 } from "@/src/components/ui/dialog";
 
-const useConfirm = (
-  title: string,
-  message: string,
-): [() => React.ReactNode, () => Promise<boolean>] => {
+interface UseConfirmProps {
+  title: string;
+  message: string;
+}
+
+const useConfirm = ({
+  title,
+  message,
+}: UseConfirmProps): [() => React.ReactNode, () => Promise<boolean>] => {
   const [promise, setPromise] = useState<{
     resolve: (value: boolean) => void;
   } | null>(null);
