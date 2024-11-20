@@ -1,32 +1,9 @@
-import { Id } from "./_generated/dataModel";
-import { QueryCtx, mutation, query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
+import { authorizeAdmin } from "./utils/authorize-admin";
+import { generatedCode } from "./utils/generated-code";
+import { isUserMemberOfWorkspace } from "./utils/is-user-member-of-workspace";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-
-const authorizeAdmin = async (ctx: QueryCtx, workspaceId: Id<"workspaces">) => {
-  const userId = await getAuthUserId(ctx);
-
-  if (!userId) throw new Error("Unauthorized");
-
-  const member = await ctx.db
-    .query("members")
-    .withIndex("by_workspace_id_user_id", (q) =>
-      q.eq("workspaceId", workspaceId).eq("userId", userId),
-    )
-    .unique();
-
-  if (!member || member.role !== "admin") throw new Error("Unauthorized");
-
-  return userId;
-};
-
-const generatedCode = () => {
-  return Array.from(
-    { length: 6 },
-    () =>
-      "0123456789abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 36)],
-  ).join("");
-};
 
 export const get = query({
   args: {},
@@ -56,17 +33,7 @@ export const getById = query({
     id: v.id("workspaces"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-
-    if (!userId) return null;
-
-    // Get all Workspaces the user is associated with
-    const member = await ctx.db
-      .query("members")
-      .withIndex("by_workspace_id_user_id", (q) =>
-        q.eq("workspaceId", args.id).eq("userId", userId),
-      )
-      .unique();
+    const member = await isUserMemberOfWorkspace(ctx, args.id);
 
     if (!member) return null;
 

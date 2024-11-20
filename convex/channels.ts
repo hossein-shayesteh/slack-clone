@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { authorizeAdmin } from "./utils/authorize-admin";
+import { isUserMemberOfWorkspace } from "./utils/is-user-member-of-workspace";
 import { v } from "convex/values";
 
 export const get = query({
@@ -8,16 +9,7 @@ export const get = query({
   },
 
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-
-    if (!userId) return null;
-
-    const member = await ctx.db
-      .query("members")
-      .withIndex("by_workspace_id_user_id", (q) =>
-        q.eq("workspaceId", args.workspaceId).eq("userId", userId),
-      )
-      .unique();
+    const member = await isUserMemberOfWorkspace(ctx, args.workspaceId);
 
     if (!member) return null;
 
@@ -36,18 +28,7 @@ export const create = mutation({
     workspaceId: v.id("workspaces"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-
-    if (!userId) throw new Error("Unauthorized");
-
-    const member = await ctx.db
-      .query("members")
-      .withIndex("by_workspace_id_user_id", (q) =>
-        q.eq("workspaceId", args.workspaceId).eq("userId", userId),
-      )
-      .unique();
-
-    if (!member || member.role !== "admin") throw new Error("Unauthorized");
+    await authorizeAdmin(ctx, args.workspaceId);
 
     const parsedName = args.name.replace(/\s+/g, "-").toLowerCase();
 
