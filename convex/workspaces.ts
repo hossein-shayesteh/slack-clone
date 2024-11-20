@@ -131,3 +131,39 @@ export const updateJoinCode = mutation({
     return await ctx.db.get(args.id);
   },
 });
+
+export const join = mutation({
+  args: {
+    id: v.id("workspaces"),
+    joinCode: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+
+    const workspace = await ctx.db.get(args.id);
+    if (!workspace) throw new Error("Workspace not found.");
+
+    if (workspace.joinCode !== args.joinCode.toLowerCase())
+      throw new Error("Invalid join code.");
+
+    //Check if user is a member of the workspace
+    const existingMember = await ctx.db
+      .query("members")
+      .withIndex("by_workspace_id_user_id", (q) =>
+        q.eq("workspaceId", args.id).eq("userId", userId),
+      )
+      .unique();
+
+    if (existingMember)
+      throw new Error("User is already a member of this workspace");
+
+    await ctx.db.insert("members", {
+      userId,
+      workspaceId: workspace._id,
+      role: "member",
+    });
+
+    return await ctx.db.get(args.id);
+  },
+});
