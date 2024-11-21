@@ -8,6 +8,7 @@ import { Loader, TriangleAlert } from "lucide-react";
 
 import { useGetChannels } from "@/src/features/channels/api/use-get-channels";
 import { useCreateChannelModal } from "@/src/features/channels/store/use-create-channel-modal";
+import { useCurrentMember } from "@/src/features/members/api/use-current-member";
 import { useGetWorkspace } from "@/src/features/workspace/api/use-get-workspace";
 import { useWorkspaceId } from "@/src/features/workspace/hooks/use-workspace-id";
 
@@ -17,22 +18,27 @@ const WorkspaceIdPage = () => {
   const router = useRouter();
 
   const workspaceId = useWorkspaceId();
+
   const { data: workspace, isLoading: workspaceLoading } =
     useGetWorkspace(workspaceId);
   const { data: channels, isLoading: channelsLoading } =
     useGetChannels(workspaceId);
+  const { data: member } = useCurrentMember(workspaceId);
 
   const channelId = useMemo(() => channels?.[0]._id, [channels]);
+  const isAdmin = useMemo(() => member?.role === "admin", [member]);
 
   useEffect(() => {
-    if (workspaceLoading || channelsLoading || !workspace) return;
+    if (workspaceLoading || channelsLoading || !member || !workspace) return;
 
     if (channelId)
       router.push(`/workspace/${workspaceId}/channel/${channelId}`);
-    else if (!open) setOpen(true);
+    else if (!open && isAdmin) setOpen(true);
   }, [
     channelId,
     channelsLoading,
+    isAdmin,
+    member,
     open,
     router,
     setOpen,
@@ -66,6 +72,15 @@ const WorkspaceIdPage = () => {
       </div>
     );
 
-  return null;
+  return (
+    <div
+      className={
+        "flex h-full flex-1 flex-col items-center justify-center gap-2"
+      }
+    >
+      <TriangleAlert className={"size-6 text-muted-foreground"} />
+      <span className={"text-sm text-muted-foreground"}>No channel found.</span>
+    </div>
+  );
 };
 export default WorkspaceIdPage;

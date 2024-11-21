@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { useGetChannels } from "@/src/features/channels/api/use-get-channels";
+import { useChannelId } from "@/src/features/channels/hooks/use-channel-id";
 import { useCreateChannelModal } from "@/src/features/channels/store/use-create-channel-modal";
 import { useCurrentMember } from "@/src/features/members/api/use-current-member";
 import { useGetMembers } from "@/src/features/members/api/use-get-members";
@@ -24,6 +25,7 @@ const WorkspaceSidebar = () => {
   const [_open, setOpen] = useCreateChannelModal();
 
   const workspaceId = useWorkspaceId();
+  const channelId = useChannelId();
 
   const { data: member, isLoading: memberLoading } =
     useCurrentMember(workspaceId);
@@ -81,10 +83,11 @@ const WorkspaceSidebar = () => {
       >
         {channels?.map((channel) => (
           <WorkspaceSidebarItem
-            key={channel._id}
-            label={channel.name}
             icon={HashIcon}
             id={channel._id}
+            key={channel._id}
+            label={channel.name}
+            variant={channel._id === channelId ? "active" : "default"}
           />
         ))}
       </WorkspaceSection>
