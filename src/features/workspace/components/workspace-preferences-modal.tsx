@@ -142,6 +142,7 @@ const WorkspacePreferencesModal = () => {
                       autoFocus
                       name={"name"}
                       minLength={3}
+                      maxLength={80}
                       placeholder={
                         "Workspace name r.g. 'work', 'Personal', 'Home'"
                       }

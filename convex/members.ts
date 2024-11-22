@@ -1,12 +1,7 @@
-import { Id } from "./_generated/dataModel";
-import { QueryCtx, query } from "./_generated/server";
-import { isUserMemberOfWorkspace } from "./utlis";
+import { query } from "./_generated/server";
+import { isUserMemberOfWorkspace, populateUser } from "./utlis";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-
-const populateUser = async (ctx: QueryCtx, id: Id<"users">) => {
-  return ctx.db.get(id);
-};
 
 export const get = query({
   args: {
