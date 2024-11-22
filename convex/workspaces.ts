@@ -1,7 +1,9 @@
 import { mutation, query } from "./_generated/server";
-import { authorizeAdmin } from "./utils/authorize-admin";
-import { generatedCode } from "./utils/generated-code";
-import { isUserMemberOfWorkspace } from "./utils/is-user-member-of-workspace";
+import {
+  authorizeAdmin,
+  generatedCode,
+  isUserMemberOfWorkspace,
+} from "./utlis";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 

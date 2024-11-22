@@ -1,6 +1,6 @@
 import { Id } from "./_generated/dataModel";
 import { QueryCtx, query } from "./_generated/server";
-import { isUserMemberOfWorkspace } from "./utils/is-user-member-of-workspace";
+import { isUserMemberOfWorkspace } from "./utlis";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 

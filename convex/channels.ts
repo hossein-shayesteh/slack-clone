@@ -1,6 +1,5 @@
 import { mutation, query } from "./_generated/server";
-import { authorizeAdmin } from "./utils/authorize-admin";
-import { isUserMemberOfWorkspace } from "./utils/is-user-member-of-workspace";
+import { authorizeAdmin, isUserMemberOfWorkspace } from "./utlis";
 import { v } from "convex/values";
 
 export const get = query({
@@ -10,7 +9,6 @@ export const get = query({
 
   handler: async (ctx, args) => {
     const member = await isUserMemberOfWorkspace(ctx, args.workspaceId);
-
     if (!member) return null;
 
     return await ctx.db
@@ -19,6 +17,21 @@ export const get = query({
         q.eq("workspaceId", args.workspaceId),
       )
       .collect();
+  },
+});
+
+export const getById = query({
+  args: {
+    id: v.id("channels"),
+  },
+  handler: async (ctx, args) => {
+    const channel = await ctx.db.get(args.id);
+    if (!channel) return null;
+
+    const member = await isUserMemberOfWorkspace(ctx, channel.workspaceId);
+    if (!member) return null;
+
+    return channel;
   },
 });
 
