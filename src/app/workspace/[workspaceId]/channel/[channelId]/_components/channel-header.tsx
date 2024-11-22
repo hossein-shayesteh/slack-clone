@@ -4,6 +4,11 @@ import { TrashIcon } from "lucide-react";
 import { FaChevronDown } from "react-icons/fa";
 
 import useConfirm from "@/src/hooks/use-confirm";
+import { useToast } from "@/src/hooks/use-toast";
+
+import { useRemoveChannel } from "@/src/features/channels/api/use-remove-channel";
+import { useUpdateChannel } from "@/src/features/channels/api/use-update-channel";
+import { useChannelId } from "@/src/features/channels/hooks/use-channel-id";
 
 import { Button } from "@/src/components/ui/button";
 import {
@@ -25,7 +30,16 @@ const ChannelHeader = ({ title }: ChannelHeaderProps) => {
   const [name, setName] = useState(title);
   const [editOpen, setEditOpen] = useState(false);
 
-  const [ConfirmDialog] = useConfirm({
+  const channelId = useChannelId();
+
+  const { mutate: updateChannel, isPending: isUpdatePending } =
+    useUpdateChannel();
+  const { mutate: removeChannel, isPending: isRemovePending } =
+    useRemoveChannel();
+
+  const { toast } = useToast();
+
+  const [ConfirmDialog, confirm] = useConfirm({
     title: "Are you sure?",
     message: "This action in irreversible.",
   });
@@ -40,8 +54,46 @@ const ChannelHeader = ({ title }: ChannelHeaderProps) => {
     setName(value);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleUpdateChannel = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    await updateChannel(
+      { id: channelId, name },
+      {
+        onSuccess: () => {
+          setEditOpen(false);
+          toast({
+            description: "Channel updated.",
+          });
+        },
+        onError: () => {
+          toast({
+            description: "Failed to update channel.",
+          });
+        },
+      },
+    );
+  };
+
+  const handleRemoveChannel = async () => {
+    const ok = await confirm();
+    if (!ok) return;
+
+    await removeChannel(
+      { id: channelId },
+      {
+        onSuccess: () => {
+          toast({
+            description: "Channel removed.",
+          });
+        },
+        onError: () => {
+          toast({
+            description: "Failed to remove channel.",
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -92,32 +144,32 @@ const ChannelHeader = ({ title }: ChannelHeaderProps) => {
                   <DialogHeader>
                     <DialogTitle>Rename this channel</DialogTitle>
                   </DialogHeader>
-                  <form className={"space-y-4"} onSubmit={handleSubmit}>
+                  <form className={"space-y-4"} onSubmit={handleUpdateChannel}>
                     <Input
                       required
                       autoFocus
                       value={name}
                       minLength={3}
                       maxLength={80}
-                      disabled={false}
+                      disabled={isUpdatePending}
                       onChange={handleChange}
                       placeholder={"e.g. plan-budget"}
                     />
                     <DialogFooter>
                       <DialogClose asChild>
-                        <Button variant={"outline"} disabled={false}>
+                        <Button variant={"outline"} disabled={isUpdatePending}>
                           Cancel
                         </Button>
                       </DialogClose>
-                      <Button disabled={false}>Save</Button>
+                      <Button disabled={isUpdatePending}>Save</Button>
                     </DialogFooter>
                   </form>
                 </DialogContent>
               </Dialog>
               <div>
                 <button
-                  disabled={false}
-                  onClick={() => {}}
+                  disabled={isRemovePending}
+                  onClick={handleRemoveChannel}
                   className={
                     "flex w-full cursor-pointer items-center gap-x-2 rounded-lg border bg-white px-5 py-4 text-rose-600 transition hover:bg-gray-50"
                   }
