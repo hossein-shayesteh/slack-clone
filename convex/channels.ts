@@ -53,3 +53,38 @@ export const create = mutation({
     return await ctx.db.get(channelId);
   },
 });
+
+export const update = mutation({
+  args: {
+    id: v.id("channels"),
+    name: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const channel = await ctx.db.get(args.id);
+    if (!channel) throw new Error("Channel not found");
+
+    await authorizeAdmin(ctx, channel.workspaceId);
+
+    const parsedName = args.name.replace(/\s+/g, "-").toLowerCase();
+
+    await ctx.db.patch(args.id, { name: parsedName });
+
+    return await ctx.db.get(args.id);
+  },
+});
+
+export const remove = mutation({
+  args: {
+    id: v.id("channels"),
+  },
+  handler: async (ctx, args) => {
+    const channel = await ctx.db.get(args.id);
+    if (!channel) throw new Error("Channel not found");
+
+    await authorizeAdmin(ctx, channel.workspaceId);
+
+    await ctx.db.delete(args.id);
+
+    return channel;
+  },
+});
