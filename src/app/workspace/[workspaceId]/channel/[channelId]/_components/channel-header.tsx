@@ -1,5 +1,7 @@
 import React, { ChangeEvent, useState } from "react";
 
+import { useRouter } from "next/navigation";
+
 import { TrashIcon } from "lucide-react";
 import { FaChevronDown } from "react-icons/fa";
 
@@ -9,6 +11,8 @@ import { useToast } from "@/src/hooks/use-toast";
 import { useRemoveChannel } from "@/src/features/channels/api/use-remove-channel";
 import { useUpdateChannel } from "@/src/features/channels/api/use-update-channel";
 import { useChannelId } from "@/src/features/channels/hooks/use-channel-id";
+import { useCurrentMember } from "@/src/features/members/api/use-current-member";
+import { useWorkspaceId } from "@/src/features/workspace/hooks/use-workspace-id";
 
 import { Button } from "@/src/components/ui/button";
 import {
@@ -29,9 +33,12 @@ interface ChannelHeaderProps {
 const ChannelHeader = ({ title }: ChannelHeaderProps) => {
   const [name, setName] = useState(title);
   const [editOpen, setEditOpen] = useState(false);
+  const router = useRouter();
 
   const channelId = useChannelId();
+  const workspaceId = useWorkspaceId();
 
+  const { data: member } = useCurrentMember(workspaceId);
   const { mutate: updateChannel, isPending: isUpdatePending } =
     useUpdateChannel();
   const { mutate: removeChannel, isPending: isRemovePending } =
@@ -44,8 +51,10 @@ const ChannelHeader = ({ title }: ChannelHeaderProps) => {
     message: "This action in irreversible.",
   });
 
-  const handleModalClose = () => {
-    setEditOpen(false);
+  const handleEditOpen = (value: boolean) => {
+    if (member?.role !== "admin") return;
+
+    setEditOpen(value);
     setName("");
   };
 
@@ -86,6 +95,7 @@ const ChannelHeader = ({ title }: ChannelHeaderProps) => {
           toast({
             description: "Channel removed.",
           });
+          router.push(`/workspace/${workspaceId}`);
         },
         onError: () => {
           toast({
@@ -120,7 +130,7 @@ const ChannelHeader = ({ title }: ChannelHeaderProps) => {
               <DialogTitle># {title}</DialogTitle>
             </DialogHeader>
             <div className={"flex flex-col gap-y-2 px-4 pb-4"}>
-              <Dialog open={editOpen} onOpenChange={handleModalClose}>
+              <Dialog open={editOpen} onOpenChange={handleEditOpen}>
                 <DialogTrigger asChild>
                   <div
                     className={
@@ -129,13 +139,15 @@ const ChannelHeader = ({ title }: ChannelHeaderProps) => {
                   >
                     <div className={"flex items-center justify-between"}>
                       <p className={"text-sm font-semibold"}>Channel name</p>
-                      <p
-                        className={
-                          "text-sm font-semibold text-[#1264a3] hover:underline"
-                        }
-                      >
-                        Edit
-                      </p>
+                      {member?.role === "admin" && (
+                        <p
+                          className={
+                            "text-sm font-semibold text-[#1264a3] hover:underline"
+                          }
+                        >
+                          Edit
+                        </p>
+                      )}
                     </div>
                     <p className={"text-sm text-muted-foreground"}># {title}</p>
                   </div>
@@ -166,18 +178,20 @@ const ChannelHeader = ({ title }: ChannelHeaderProps) => {
                   </form>
                 </DialogContent>
               </Dialog>
-              <div>
-                <button
-                  disabled={isRemovePending}
-                  onClick={handleRemoveChannel}
-                  className={
-                    "flex w-full cursor-pointer items-center gap-x-2 rounded-lg border bg-white px-5 py-4 text-rose-600 transition hover:bg-gray-50"
-                  }
-                >
-                  <TrashIcon className={"size-4"} />
-                  <p className={"text-sm font-semibold"}>Delete channel</p>
-                </button>
-              </div>
+              {member?.role === "admin" && (
+                <div>
+                  <button
+                    disabled={isRemovePending}
+                    onClick={handleRemoveChannel}
+                    className={
+                      "flex w-full cursor-pointer items-center gap-x-2 rounded-lg border bg-white px-5 py-4 text-rose-600 transition hover:bg-gray-50"
+                    }
+                  >
+                    <TrashIcon className={"size-4"} />
+                    <p className={"text-sm font-semibold"}>Delete channel</p>
+                  </button>
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
