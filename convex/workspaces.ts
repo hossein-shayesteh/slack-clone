@@ -35,7 +35,7 @@ export const getById = query({
     id: v.id("workspaces"),
   },
   handler: async (ctx, args) => {
-    const member = await isUserMemberOfWorkspace(ctx, args.id);
+    const member = await isUserMemberOfWorkspace({ ctx, workspaceId: args.id });
 
     if (!member) return null;
 
@@ -100,7 +100,7 @@ export const update = mutation({
   },
 
   handler: async (ctx, args) => {
-    await authorizeAdmin(ctx, args.id);
+    await authorizeAdmin({ ctx, workspaceId: args.id });
 
     await ctx.db.patch(args.id, { name: args.name });
 
@@ -114,7 +114,7 @@ export const remove = mutation({
   },
 
   handler: async (ctx, args) => {
-    await authorizeAdmin(ctx, args.id);
+    await authorizeAdmin({ ctx, workspaceId: args.id });
 
     const members = await ctx.db
       .query("members")
@@ -149,7 +149,7 @@ export const updateJoinCode = mutation({
     id: v.id("workspaces"),
   },
   handler: async (ctx, args) => {
-    await authorizeAdmin(ctx, args.id);
+    await authorizeAdmin({ ctx, workspaceId: args.id });
 
     const newJoinCode = generatedCode();
 

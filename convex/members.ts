@@ -8,7 +8,10 @@ export const get = query({
     workspaceId: v.id("workspaces"),
   },
   handler: async (ctx, args) => {
-    const member = await isUserMemberOfWorkspace(ctx, args.workspaceId);
+    const member = await isUserMemberOfWorkspace({
+      ctx,
+      workspaceId: args.workspaceId,
+    });
 
     if (!member) return null;
 
@@ -22,7 +25,7 @@ export const get = query({
       .collect();
 
     for (const member of members) {
-      const user = await populateUser(ctx, member.userId);
+      const user = await populateUser({ ctx, userId: member.userId });
       if (user) users.push({ ...member, user });
     }
     return users;

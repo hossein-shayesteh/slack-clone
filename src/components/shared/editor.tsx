@@ -22,10 +22,7 @@ import EmojiPopover, { BaseEmoji } from "@/src/components/shared/emoji-popover";
 import Hint from "@/src/components/shared/hint";
 import { Button } from "@/src/components/ui/button";
 
-interface EditorValue {
-  body: string;
-  image: File | null;
-}
+import { EditorValue } from "@/src/app/workspace/[workspaceId]/channel/[channelId]/_components/chat-input";
 
 interface EditorProps {
   disabled?: boolean;
@@ -46,11 +43,12 @@ const Editor = ({
   placeholder = "Write something...",
   variant = "create",
 }: EditorProps) => {
+  // States
   const [text, setText] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [isToolbarVisible, setToolbarVisible] = useState(false);
 
-  //Refs
+  // Refs
   const submitRef = useRef(onSubmit);
   const placeholderRef = useRef(placeholder);
   const quillRef = useRef<Quill | null>(null);
@@ -59,13 +57,13 @@ const Editor = ({
   const disabledRef = useRef(disabled);
   const imageRef = useRef<ElementRef<"input">>(null);
 
+  // UseEffect
   useLayoutEffect(() => {
     submitRef.current = onSubmit;
     disabledRef.current = disabled;
     placeholderRef.current = placeholder;
     defaultValueRef.current = defaultValue;
   });
-
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -89,8 +87,16 @@ const Editor = ({
             enter: {
               key: "Enter",
               handler: () => {
-                // TODO: Submit form
-                return;
+                const text = quill.getText();
+                const body = JSON.stringify(quill.getContents());
+                const addedImage = imageRef.current?.files?.[0] || null;
+
+                const isEmpty =
+                  !addedImage &&
+                  text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
+                if (isEmpty) return;
+
+                submitRef.current?.({ image: addedImage, body });
               },
             },
             shift_enter: {
@@ -125,7 +131,7 @@ const Editor = ({
     };
   }, [innerRef]);
 
-  const isEmpty = text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
+  const isEmpty = !image && text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
 
   const toggleToolbar = () => {
     setToolbarVisible((prevState) => !prevState);
@@ -134,10 +140,17 @@ const Editor = ({
     if (toolbarElement) toolbarElement.classList.toggle("hidden");
   };
 
-  const onEmojiSelect = (emoji: BaseEmoji) => {
+  const handleEmojiSelection = (emoji: BaseEmoji) => {
     const quill = quillRef.current;
 
     quill?.insertText(quill?.getSelection()?.index || 0, emoji.native);
+  };
+
+  const handleSubmit = () => {
+    onSubmit({
+      image,
+      body: JSON.stringify(quillRef.current?.getContents()),
+    });
   };
 
   return (
@@ -195,7 +208,7 @@ const Editor = ({
               <PiTextAa className={"size-4"} />
             </Button>
           </Hint>
-          <EmojiPopover onEmojiSelect={onEmojiSelect}>
+          <EmojiPopover onEmojiSelect={handleEmojiSelection}>
             <Button disabled={disabled} variant={"ghost"} size={"iconSm"}>
               <Smile className={"size-4"} />
             </Button>
@@ -218,14 +231,14 @@ const Editor = ({
                 disabled={disabled}
                 variant={"outline"}
                 size={"sm"}
-                onClick={() => {}}
+                onClick={onCancel}
               >
                 Cancel
               </Button>
               <Button
                 disabled={disabled || isEmpty}
                 size={"sm"}
-                onClick={() => {}}
+                onClick={handleSubmit}
                 className={"bg-[#007a5a] text-white hover:bg-[#007a5a]/80"}
               >
                 Save
@@ -236,7 +249,7 @@ const Editor = ({
             <Button
               disabled={disabled || isEmpty}
               size={"iconSm"}
-              onClick={() => {}}
+              onClick={handleSubmit}
               className={cn(
                 "ml-auto",
                 isEmpty

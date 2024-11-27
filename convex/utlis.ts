@@ -2,10 +2,6 @@ import { Id } from "./_generated/dataModel";
 import { QueryCtx } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
-export const populateUser = async (ctx: QueryCtx, id: Id<"users">) => {
-  return ctx.db.get(id);
-};
-
 export const generatedCode = () => {
   return Array.from(
     { length: 6 },
@@ -14,12 +10,24 @@ export const generatedCode = () => {
   ).join("");
 };
 
-export const authorizeAdmin = async (
-  ctx: QueryCtx,
-  workspaceId: Id<"workspaces">,
-) => {
-  const userId = await getAuthUserId(ctx);
+export const populateUser = async ({
+  ctx,
+  userId,
+}: {
+  ctx: QueryCtx;
+  userId: Id<"users">;
+}) => {
+  return ctx.db.get(userId);
+};
 
+export const authorizeAdmin = async ({
+  ctx,
+  workspaceId,
+}: {
+  ctx: QueryCtx;
+  workspaceId: Id<"workspaces">;
+}) => {
+  const userId = await getAuthUserId(ctx);
   if (!userId) throw new Error("Unauthorized");
 
   const member = await ctx.db
@@ -28,18 +36,19 @@ export const authorizeAdmin = async (
       q.eq("workspaceId", workspaceId).eq("userId", userId),
     )
     .unique();
-
   if (!member || member.role !== "admin") throw new Error("Unauthorized");
 
-  return userId;
+  return member;
 };
 
-export const isUserMemberOfWorkspace = async (
-  ctx: QueryCtx,
-  workspaceId: Id<"workspaces">,
-) => {
+export const isUserMemberOfWorkspace = async ({
+  workspaceId,
+  ctx,
+}: {
+  ctx: QueryCtx;
+  workspaceId: Id<"workspaces">;
+}) => {
   const userId = await getAuthUserId(ctx);
-
   if (!userId) return null;
 
   const member = await ctx.db
@@ -48,7 +57,6 @@ export const isUserMemberOfWorkspace = async (
       q.eq("workspaceId", workspaceId).eq("userId", userId),
     )
     .unique();
-
   if (!member) return null;
 
   return member;

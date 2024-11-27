@@ -8,7 +8,10 @@ export const get = query({
   },
 
   handler: async (ctx, args) => {
-    const member = await isUserMemberOfWorkspace(ctx, args.workspaceId);
+    const member = await isUserMemberOfWorkspace({
+      ctx,
+      workspaceId: args.workspaceId,
+    });
     if (!member) return null;
 
     return await ctx.db
@@ -28,7 +31,10 @@ export const getById = query({
     const channel = await ctx.db.get(args.id);
     if (!channel) return null;
 
-    const member = await isUserMemberOfWorkspace(ctx, channel.workspaceId);
+    const member = await isUserMemberOfWorkspace({
+      ctx,
+      workspaceId: channel.workspaceId,
+    });
     if (!member) return null;
 
     return channel;
@@ -41,7 +47,7 @@ export const create = mutation({
     workspaceId: v.id("workspaces"),
   },
   handler: async (ctx, args) => {
-    await authorizeAdmin(ctx, args.workspaceId);
+    await authorizeAdmin({ ctx, workspaceId: args.workspaceId });
 
     const parsedName = args.name.replace(/\s+/g, "-").toLowerCase();
 
@@ -63,7 +69,7 @@ export const update = mutation({
     const channel = await ctx.db.get(args.id);
     if (!channel) throw new Error("Channel not found");
 
-    await authorizeAdmin(ctx, channel.workspaceId);
+    await authorizeAdmin({ ctx, workspaceId: channel.workspaceId });
 
     const parsedName = args.name.replace(/\s+/g, "-").toLowerCase();
 
@@ -81,7 +87,7 @@ export const remove = mutation({
     const channel = await ctx.db.get(args.id);
     if (!channel) throw new Error("Channel not found");
 
-    await authorizeAdmin(ctx, channel.workspaceId);
+    await authorizeAdmin({ ctx, workspaceId: channel.workspaceId });
 
     await ctx.db.delete(args.id);
 
