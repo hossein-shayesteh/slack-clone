@@ -10,6 +10,7 @@ type RequestType = {
   image?: Id<"_storage">;
   channelId?: Id<"channels">;
   parentMessage?: Id<"messages">;
+  conversationId?: Id<"conversations">;
 };
 type ResponseType = Doc<"messages"> | null;
 
