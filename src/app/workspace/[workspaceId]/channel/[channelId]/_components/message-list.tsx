@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { differenceInMinutes, format } from "date-fns";
 
 import { formatDateLabel } from "@/src/lib/utils";
 
@@ -17,6 +17,8 @@ interface MessageListProps {
   isLoadingMore: boolean;
   canLoadMore: boolean;
 }
+
+const TIME_THRESHOLD = 5;
 
 const MessageList = ({
   canLoadMore,
@@ -59,16 +61,28 @@ const MessageList = ({
               {formatDateLabel(dateKey)}
             </span>
           </div>
-          {messages.map((message, index) => (
-            <Message
-              key={message._id}
-              message={message}
-              isAuthor={false}
-              isCompact={false}
-              setEditingId={() => {}}
-              hideThreadButton={false}
-            />
-          ))}
+          {messages.map((message, index) => {
+            const previousMessage = messages[index - 1];
+
+            const inCompact =
+              previousMessage &&
+              previousMessage.user._id === message.user._id &&
+              differenceInMinutes(
+                new Date(message._creationTime),
+                new Date(previousMessage._creationTime),
+              ) < TIME_THRESHOLD;
+
+            return (
+              <Message
+                key={message._id}
+                message={message}
+                isAuthor={false}
+                isCompact={inCompact}
+                setEditingId={() => {}}
+                hideThreadButton={false}
+              />
+            );
+          })}
         </div>
       ))}
     </div>
