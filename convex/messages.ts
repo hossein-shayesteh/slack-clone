@@ -65,7 +65,7 @@ export const get = query({
             count: reactions.filter((r) => r.value === reaction.value).length,
           }));
 
-          const dedupedReactions = reactionWithCounts.reduce(
+          const deduplicatedReactions = reactionWithCounts.reduce(
             (acc, reaction) => {
               const existingReaction = acc.find(
                 (r) => r.value === reaction.value,
@@ -85,7 +85,7 @@ export const get = query({
             })[],
           );
 
-          const reactionWithoutMemberProperty = dedupedReactions.map(
+          const reactionWithoutMemberProperty = deduplicatedReactions.map(
             ({ memberId, ...rest }) => rest,
           );
 

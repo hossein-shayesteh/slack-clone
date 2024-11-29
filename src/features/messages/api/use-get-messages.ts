@@ -11,6 +11,7 @@ interface UseGetMessagesProps {
 }
 
 export type GetMessagesReturnType = typeof api.messages.get._returnType.page;
+export type SingleMessageType = GetMessagesReturnType[number];
 
 const BATCH_SIZE = 20;
 
